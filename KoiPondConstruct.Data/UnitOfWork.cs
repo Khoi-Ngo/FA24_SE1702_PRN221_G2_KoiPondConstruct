@@ -8,6 +8,7 @@ namespace KoiPondConstruct.Data
     {
         private FA24_SE1702_PRN221_G2_KoiPondConstructContext _context;
         private UserRepository _userRepository;
+        private ImgReferRepository _imgReferRepository;
 
         public UnitOfWork()
         {
@@ -21,6 +22,13 @@ namespace KoiPondConstruct.Data
             {
                 return _userRepository ??= new UserRepository(_context);
 
+            }
+        }
+        public ImgReferRepository ImgReferRepository
+        {
+            get
+            {
+                return _imgReferRepository ??= new ImgReferRepository(_context);
             }
         }
     }
