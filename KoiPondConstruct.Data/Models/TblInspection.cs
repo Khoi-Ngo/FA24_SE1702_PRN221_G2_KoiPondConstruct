@@ -27,7 +27,5 @@ public partial class TblInspection
 
     public virtual TblDesign Design { get; set; }
 
-    public virtual TblUser Inspector { get; set; }
-
     public virtual ICollection<TblInspectionDetail> TblInspectionDetails { get; set; } = new List<TblInspectionDetail>();
 }

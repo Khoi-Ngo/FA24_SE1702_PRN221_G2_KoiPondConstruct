@@ -31,9 +31,7 @@ public partial class TblSampleDesign
 
     public bool IsDeleted { get; set; }
 
-    public virtual TblImgRefer Img { get; set; }
+    public virtual ICollection<TblCustomerRequestDetail> TblCustomerRequestDetails { get; set; } = new List<TblCustomerRequestDetail>();
 
-    public virtual ICollection<TblRequestDetailSampleDesign> TblRequestDetailSampleDesigns { get; set; } = new List<TblRequestDetailSampleDesign>();
-
-    public virtual ICollection<TblSuggestionDoc> TblSuggestionDocs { get; set; } = new List<TblSuggestionDoc>();
+    public virtual TblSuggestionDoc TblSuggestionDoc { get; set; }
 }

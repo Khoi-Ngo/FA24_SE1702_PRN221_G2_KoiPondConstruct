@@ -25,7 +25,9 @@ public partial class TblFeedback
 
     public long UserId { get; set; }
 
-    public virtual ICollection<TblSuggestionDoc> TblSuggestionDocs { get; set; } = new List<TblSuggestionDoc>();
+    public long SuggestionDocId { get; set; }
+
+    public virtual TblSuggestionDoc SuggestionDoc { get; set; }
 
     public virtual TblUser User { get; set; }
 }

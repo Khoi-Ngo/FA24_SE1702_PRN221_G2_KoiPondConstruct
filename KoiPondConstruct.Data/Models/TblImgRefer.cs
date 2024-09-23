@@ -14,6 +14,4 @@ public partial class TblImgRefer
     public DateTime CreatedTime { get; set; }
 
     public DateTime DeletedTime { get; set; }
-
-    public virtual ICollection<TblSampleDesign> TblSampleDesigns { get; set; } = new List<TblSampleDesign>();
 }

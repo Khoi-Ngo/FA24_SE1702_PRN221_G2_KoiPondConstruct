@@ -13,8 +13,6 @@ public partial class TblSuggestionDoc
 
     public long RequestDetailId { get; set; }
 
-    public long FeedbackId { get; set; }
-
     public DateTime CreatedTime { get; set; }
 
     public DateTime UpdatedTime { get; set; }
@@ -37,9 +35,9 @@ public partial class TblSuggestionDoc
 
     public bool IsDeleted { get; set; }
 
-    public virtual TblFeedback Feedback { get; set; }
-
     public virtual TblCustomerRequestDetail RequestDetail { get; set; }
 
     public virtual TblSampleDesign SampleDesign { get; set; }
+
+    public virtual ICollection<TblFeedback> TblFeedbacks { get; set; } = new List<TblFeedback>();
 }

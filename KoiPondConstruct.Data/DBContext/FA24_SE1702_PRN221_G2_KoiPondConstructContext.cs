@@ -3,13 +3,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace KoiPondConstruct.Data.Models;
 
 public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 {
-
     public FA24_SE1702_PRN221_G2_KoiPondConstructContext(DbContextOptions<FA24_SE1702_PRN221_G2_KoiPondConstructContext> options)
         : base(options)
     {
@@ -39,8 +37,6 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 
     public virtual DbSet<TblQuotationCost> TblQuotationCosts { get; set; }
 
-    public virtual DbSet<TblRequestDetailSampleDesign> TblRequestDetailSampleDesigns { get; set; }
-
     public virtual DbSet<TblSampleDesign> TblSampleDesigns { get; set; }
 
     public virtual DbSet<TblStatus> TblStatuses { get; set; }
@@ -49,25 +45,11 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 
     public virtual DbSet<TblUser> TblUsers { get; set; }
 
-
-    //TODO: OnConfiguring -> get connection string from appsettings.json
-    public static string GetConnectionString(string connectionStringName)
-    {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")//TODO this file will be created later
-            .Build();
-        string connectionString = config.GetConnectionString(connectionStringName);
-        return connectionString;
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TblCustomerRequest>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__tbl_cust__3213E83FECB55DE4");
+            entity.HasKey(e => e.Id).HasName("PK__tbl_cust__3213E83F04C307BE");
 
             entity.ToTable("tbl_customer_request");
 
@@ -107,7 +89,7 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 
         modelBuilder.Entity<TblCustomerRequestDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__tbl_cust__3213E83FB8B60840");
+            entity.HasKey(e => e.Id).HasName("PK__tbl_cust__3213E83FDA2F4631");
 
             entity.ToTable("tbl_customer_request_detail");
 
@@ -143,6 +125,7 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasColumnType("text")
                 .HasColumnName("note");
             entity.Property(e => e.RequestId).HasColumnName("request_id");
+            entity.Property(e => e.SampleDesignId).HasColumnName("sample_design_id");
             entity.Property(e => e.Shape)
                 .IsRequired()
                 .HasMaxLength(255)
@@ -159,6 +142,11 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasForeignKey(d => d.RequestId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_tbl_customer_request_detail_request_id");
+
+            entity.HasOne(d => d.SampleDesign).WithMany(p => p.TblCustomerRequestDetails)
+                .HasForeignKey(d => d.SampleDesignId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_customer_request_detail_sample_design_id");
         });
 
         modelBuilder.Entity<TblDesign>(entity =>
@@ -166,6 +154,8 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
             entity.HasKey(e => e.Id).HasName("tbl_design_id_primary");
 
             entity.ToTable("tbl_design");
+
+            entity.HasIndex(e => e.RequestDetailId, "UQ__tbl_desi__5A4D1BEA8FACACD6").IsUnique();
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
@@ -210,8 +200,8 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updated_time");
 
-            entity.HasOne(d => d.RequestDetail).WithMany(p => p.TblDesigns)
-                .HasForeignKey(d => d.RequestDetailId)
+            entity.HasOne(d => d.RequestDetail).WithOne(p => p.TblDesign)
+                .HasForeignKey<TblDesign>(d => d.RequestDetailId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_tbl_design_request_detail_id");
         });
@@ -239,6 +229,7 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasColumnName("created_time");
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.IsSolved).HasColumnName("is_solved");
+            entity.Property(e => e.SuggestionDocId).HasColumnName("suggestion_doc_id");
             entity.Property(e => e.Title)
                 .IsRequired()
                 .HasMaxLength(255)
@@ -248,6 +239,11 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updated_time");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.SuggestionDoc).WithMany(p => p.TblFeedbacks)
+                .HasForeignKey(d => d.SuggestionDocId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_tbl_feedback_suggestion_doc_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.TblFeedbacks)
                 .HasForeignKey(d => d.UserId)
@@ -279,9 +275,11 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 
         modelBuilder.Entity<TblInspection>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__tbl_insp__3213E83F7FD144D0");
+            entity.HasKey(e => e.Id).HasName("PK__tbl_insp__3213E83FA9AF3631");
 
             entity.ToTable("tbl_inspection");
+
+            entity.HasIndex(e => e.DesignId, "UQ__tbl_insp__1BA5C3FAA0ACCC8F").IsUnique();
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
@@ -313,20 +311,15 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("status");
 
-            entity.HasOne(d => d.Design).WithMany(p => p.TblInspections)
-                .HasForeignKey(d => d.DesignId)
+            entity.HasOne(d => d.Design).WithOne(p => p.TblInspection)
+                .HasForeignKey<TblInspection>(d => d.DesignId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_tbl_inspection_design_id");
-
-            entity.HasOne(d => d.Inspector).WithMany(p => p.TblInspections)
-                .HasForeignKey(d => d.InspectorId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_tbl_inspection_inspector_id");
         });
 
         modelBuilder.Entity<TblInspectionDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__tbl_insp__3213E83FB7062F28");
+            entity.HasKey(e => e.Id).HasName("PK__tbl_insp__3213E83FC6B4C385");
 
             entity.ToTable("tbl_inspection_detail");
 
@@ -455,6 +448,8 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 
             entity.ToTable("tbl_quotation_cost");
 
+            entity.HasIndex(e => e.RequestDetailId, "UQ__tbl_quot__5A4D1BEA97EC8145").IsUnique();
+
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
@@ -499,34 +494,10 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updated_time");
 
-            entity.HasOne(d => d.RequestDetail).WithMany(p => p.TblQuotationCosts)
-                .HasForeignKey(d => d.RequestDetailId)
+            entity.HasOne(d => d.RequestDetail).WithOne(p => p.TblQuotationCost)
+                .HasForeignKey<TblQuotationCost>(d => d.RequestDetailId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_tbl_quotation_cost_request_detail_id");
-        });
-
-        modelBuilder.Entity<TblRequestDetailSampleDesign>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__tbl_requ__3213E83F4D9CEEB8");
-
-            entity.ToTable("tbl_request_detail_sample_design");
-
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
-            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
-            entity.Property(e => e.RequestDetailId).HasColumnName("request_detail_id");
-            entity.Property(e => e.SampleDesignId).HasColumnName("sample_design_id");
-
-            entity.HasOne(d => d.RequestDetail).WithMany(p => p.TblRequestDetailSampleDesigns)
-                .HasForeignKey(d => d.RequestDetailId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_tbl_request_detail_sample_design_request_detail_id");
-
-            entity.HasOne(d => d.SampleDesign).WithMany(p => p.TblRequestDetailSampleDesigns)
-                .HasForeignKey(d => d.SampleDesignId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_tbl_request_detail_sample_design_sample_design_id");
         });
 
         modelBuilder.Entity<TblSampleDesign>(entity =>
@@ -577,11 +548,6 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
             entity.Property(e => e.UpdatedTime)
                 .HasColumnType("datetime")
                 .HasColumnName("updated_time");
-
-            entity.HasOne(d => d.Img).WithMany(p => p.TblSampleDesigns)
-                .HasForeignKey(d => d.ImgId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_tbl_sample_design_img_id");
         });
 
         modelBuilder.Entity<TblStatus>(entity =>
@@ -634,6 +600,8 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
 
             entity.ToTable("tbl_suggestion_doc");
 
+            entity.HasIndex(e => e.SampleDesignId, "UQ__tbl_sugg__C675143A6D2B672D").IsUnique();
+
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
@@ -657,7 +625,6 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
             entity.Property(e => e.CreatedTime)
                 .HasColumnType("datetime")
                 .HasColumnName("created_time");
-            entity.Property(e => e.FeedbackId).HasColumnName("feedback_id");
             entity.Property(e => e.File)
                 .IsRequired()
                 .HasMaxLength(255)
@@ -680,18 +647,13 @@ public partial class FA24_SE1702_PRN221_G2_KoiPondConstructContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updated_time");
 
-            entity.HasOne(d => d.Feedback).WithMany(p => p.TblSuggestionDocs)
-                .HasForeignKey(d => d.FeedbackId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_tbl_suggestion_doc_feedback_id");
-
             entity.HasOne(d => d.RequestDetail).WithMany(p => p.TblSuggestionDocs)
                 .HasForeignKey(d => d.RequestDetailId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_tbl_suggestion_doc_request_detail_id");
 
-            entity.HasOne(d => d.SampleDesign).WithMany(p => p.TblSuggestionDocs)
-                .HasForeignKey(d => d.SampleDesignId)
+            entity.HasOne(d => d.SampleDesign).WithOne(p => p.TblSuggestionDoc)
+                .HasForeignKey<TblSuggestionDoc>(d => d.SampleDesignId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_tbl_suggestion_doc_sample_design_id");
         });

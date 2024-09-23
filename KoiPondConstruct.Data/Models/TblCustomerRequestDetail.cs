@@ -11,6 +11,8 @@ public partial class TblCustomerRequestDetail
 
     public long RequestId { get; set; }
 
+    public long SampleDesignId { get; set; }
+
     public string HomeownerFirstName { get; set; }
 
     public string HomeownerLastName { get; set; }
@@ -39,11 +41,11 @@ public partial class TblCustomerRequestDetail
 
     public virtual TblCustomerRequest Request { get; set; }
 
-    public virtual ICollection<TblDesign> TblDesigns { get; set; } = new List<TblDesign>();
+    public virtual TblSampleDesign SampleDesign { get; set; }
 
-    public virtual ICollection<TblQuotationCost> TblQuotationCosts { get; set; } = new List<TblQuotationCost>();
+    public virtual TblDesign TblDesign { get; set; }
 
-    public virtual ICollection<TblRequestDetailSampleDesign> TblRequestDetailSampleDesigns { get; set; } = new List<TblRequestDetailSampleDesign>();
+    public virtual TblQuotationCost TblQuotationCost { get; set; }
 
     public virtual ICollection<TblSuggestionDoc> TblSuggestionDocs { get; set; } = new List<TblSuggestionDoc>();
 }

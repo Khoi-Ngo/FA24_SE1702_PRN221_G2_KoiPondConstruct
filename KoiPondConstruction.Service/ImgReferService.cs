@@ -14,6 +14,7 @@ namespace KoiPondConstruction.Service
         //Can return ServiceResult
         Task<List<TblImgRefer>> GetAll();
         Task<TblImgRefer> GetById(int id);
+        //Task<ServiceResult> DemoGetAllViaSerivceResult();
         void createNewImgRefer(TblImgRefer imgRefer);
         Task delete(int id);
     }
@@ -46,6 +47,12 @@ namespace KoiPondConstruction.Service
         {
             throw new NotImplementedException();
         }
+
+        //public Task<ServiceResult> DemoGetAllViaSerivceResult()
+        //{
+        //    List<TblImgRefer> res = _unitOfWork.ImgReferRepository.GetAll();
+
+        //}
 
         public Task<List<TblImgRefer>> GetAll()
         {

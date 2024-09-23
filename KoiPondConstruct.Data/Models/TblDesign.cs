@@ -33,7 +33,7 @@ public partial class TblDesign
 
     public virtual TblCustomerRequestDetail RequestDetail { get; set; }
 
-    public virtual ICollection<TblInspection> TblInspections { get; set; } = new List<TblInspection>();
+    public virtual TblInspection TblInspection { get; set; }
 
     public virtual ICollection<TblStatus> TblStatuses { get; set; } = new List<TblStatus>();
 }

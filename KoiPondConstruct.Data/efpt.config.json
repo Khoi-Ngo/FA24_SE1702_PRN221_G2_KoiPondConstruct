@@ -55,10 +55,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tbl_request_detail_sample_design]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[tbl_sample_design]",
          "ObjectType": 0
       },

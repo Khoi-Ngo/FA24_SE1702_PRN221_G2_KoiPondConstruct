@@ -42,6 +42,4 @@ public partial class TblUser
     public virtual ICollection<TblCustomerRequest> TblCustomerRequests { get; set; } = new List<TblCustomerRequest>();
 
     public virtual ICollection<TblFeedback> TblFeedbacks { get; set; } = new List<TblFeedback>();
-
-    public virtual ICollection<TblInspection> TblInspections { get; set; } = new List<TblInspection>();
 }
